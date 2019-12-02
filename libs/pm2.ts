@@ -2,6 +2,7 @@ import pm2 from 'pm2'
 import *as proxy_rule from './proxy_rule'
 import fs from 'fs'
 import { apps_filepath } from "./config"
+import { Pm2Env, ProcessDescription } from "~libs/thrift/codegen";
 
 export class PM2 {
   link_status: 0 | 1 = 0
@@ -24,7 +25,7 @@ export class PM2 {
       await this.pm2_connect
     }
   }
-  async list(pm_id?: number) {
+  async list(pm_id?: number): Promise<ProcessDescription[]> {
     await this.init()
     let list: pm2.ProcessDescription[] = await new Promise((rl, rj) => {
       pm2.list((err, list) => {
@@ -35,9 +36,9 @@ export class PM2 {
     if (typeof pm_id === 'number') {
       list = list.filter(pm2_proc => pm2_proc.pm_id === pm_id)
     }
-    return list
+    return list as any
   }
-  async add_proxy(rule: string) {
+  async add_proxy(rule: string): Promise<Pm2Env> {
     await this.init()
     let startOptions = proxy_rule.parse(rule)
     let result = new Promise((rl, rj) => {
@@ -54,9 +55,9 @@ export class PM2 {
       this.apps[index] = startOptions
     }
     this.apps_save()
-    return result
+    return result as any
   }
-  async del_proxy(rule: string) {
+  async del_proxy(rule: string): Promise<Pm2Env> {
     await this.init()
     let result = new Promise((rl, rj) => {
       pm2.delete(rule, (err, proc) => {
@@ -66,7 +67,7 @@ export class PM2 {
     })
     this.apps = this.apps.filter(({ name }) => name !== rule)
     this.apps_save()
-    return result
+    return result as any
   }
 }
 
