@@ -11,14 +11,16 @@ export class PM2Service implements ThriftServer {
   server = createThriftServer<PM2Svc.Processor, PM2Svc.IHandler<Context>>(PM2Svc.Processor, {
     AddProxy: async (ctx, rule) => {
       let res = await pm2.add_proxy(rule)
-      let pm2Env = new Pm2Env(res)
-      return pm2Env
+      return res
     },
     DelProxy: async (ctx, rule) => {
       let res = await pm2.del_proxy(rule)
-      let pm2Env = new Pm2Env(res)
-      return pm2Env
+      return res
     },
+    List: async (ctx, params) => {
+      let res = await pm2.list(params.pm_id)
+      return res
+    }
   })
 
   httpHandle = handleThriftServer(this.server)
