@@ -73,7 +73,12 @@ struct Proc {
   22: i64 exit_code
 }
 
+struct ListParams {
+
+}
+
 service PM2Svc {
   Proc AddProxy(1: string rule)
   Proc DelProxy(1: string rule)
+  list<ProcessDescription> List(1: ListParams params)
 }

@@ -6,6 +6,8 @@
 */
 import * as thrift from "thrift";
 import * as Proc from "./Proc";
+import * as ListParams from "./ListParams";
+import * as ProcessDescription from "./ProcessDescription";
 export interface IAddProxyArgsArgs {
     rule: string;
 }
@@ -124,6 +126,65 @@ export class DelProxyArgs {
         }
     }
 }
+export interface IListArgsArgs {
+    params: ListParams.ListParams;
+}
+export class ListArgs {
+    public params: ListParams.ListParams;
+    constructor(args: IListArgsArgs) {
+        if (args != null && args.params != null) {
+            this.params = args.params;
+        }
+        else {
+            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field[params] is unset!");
+        }
+    }
+    public write(output: thrift.TProtocol): void {
+        output.writeStructBegin("ListArgs");
+        if (this.params != null) {
+            output.writeFieldBegin("params", thrift.Thrift.Type.STRUCT, 1);
+            this.params.write(output);
+            output.writeFieldEnd();
+        }
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    }
+    public static read(input: thrift.TProtocol): ListArgs {
+        input.readStructBegin();
+        let _args: any = {};
+        while (true) {
+            const ret: thrift.TField = input.readFieldBegin();
+            const fieldType: thrift.Thrift.Type = ret.ftype;
+            const fieldId: number = ret.fid;
+            if (fieldType === thrift.Thrift.Type.STOP) {
+                break;
+            }
+            switch (fieldId) {
+                case 1:
+                    if (fieldType === thrift.Thrift.Type.STRUCT) {
+                        const value_3: ListParams.ListParams = ListParams.ListParams.read(input);
+                        _args.params = value_3;
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                default: {
+                    input.skip(fieldType);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        if (_args.params !== undefined) {
+            return new ListArgs(_args);
+        }
+        else {
+            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Unable to read ListArgs from input");
+        }
+    }
+}
 export interface IAddProxyResultArgs {
     success?: Proc.Proc;
 }
@@ -158,8 +219,8 @@ export class AddProxyResult {
             switch (fieldId) {
                 case 0:
                     if (fieldType === thrift.Thrift.Type.STRUCT) {
-                        const value_3: Proc.Proc = Proc.Proc.read(input);
-                        _args.success = value_3;
+                        const value_4: Proc.Proc = Proc.Proc.read(input);
+                        _args.success = value_4;
                     }
                     else {
                         input.skip(fieldType);
@@ -209,8 +270,8 @@ export class DelProxyResult {
             switch (fieldId) {
                 case 0:
                     if (fieldType === thrift.Thrift.Type.STRUCT) {
-                        const value_4: Proc.Proc = Proc.Proc.read(input);
-                        _args.success = value_4;
+                        const value_5: Proc.Proc = Proc.Proc.read(input);
+                        _args.success = value_5;
                     }
                     else {
                         input.skip(fieldType);
@@ -224,6 +285,68 @@ export class DelProxyResult {
         }
         input.readStructEnd();
         return new DelProxyResult(_args);
+    }
+}
+export interface IListResultArgs {
+    success?: Array<ProcessDescription.ProcessDescription>;
+}
+export class ListResult {
+    public success?: Array<ProcessDescription.ProcessDescription>;
+    constructor(args?: IListResultArgs) {
+        if (args != null && args.success != null) {
+            this.success = args.success;
+        }
+    }
+    public write(output: thrift.TProtocol): void {
+        output.writeStructBegin("ListResult");
+        if (this.success != null) {
+            output.writeFieldBegin("success", thrift.Thrift.Type.LIST, 0);
+            output.writeListBegin(thrift.Thrift.Type.STRUCT, this.success.length);
+            this.success.forEach((value_6: ProcessDescription.ProcessDescription): void => {
+                value_6.write(output);
+            });
+            output.writeListEnd();
+            output.writeFieldEnd();
+        }
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    }
+    public static read(input: thrift.TProtocol): ListResult {
+        input.readStructBegin();
+        let _args: any = {};
+        while (true) {
+            const ret: thrift.TField = input.readFieldBegin();
+            const fieldType: thrift.Thrift.Type = ret.ftype;
+            const fieldId: number = ret.fid;
+            if (fieldType === thrift.Thrift.Type.STOP) {
+                break;
+            }
+            switch (fieldId) {
+                case 0:
+                    if (fieldType === thrift.Thrift.Type.LIST) {
+                        const value_7: Array<ProcessDescription.ProcessDescription> = new Array<ProcessDescription.ProcessDescription>();
+                        const metadata_1: thrift.TList = input.readListBegin();
+                        const size_1: number = metadata_1.size;
+                        for (let i_1: number = 0; i_1 < size_1; i_1++) {
+                            const value_8: ProcessDescription.ProcessDescription = ProcessDescription.ProcessDescription.read(input);
+                            value_7.push(value_8);
+                        }
+                        input.readListEnd();
+                        _args.success = value_7;
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                default: {
+                    input.skip(fieldType);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        return new ListResult(_args);
     }
 }
 export class Client {
@@ -272,6 +395,21 @@ export class Client {
             this.send_DelProxy(rule, requestId);
         });
     }
+    public List(params: ListParams.ListParams): Promise<Array<ProcessDescription.ProcessDescription>> {
+        const requestId: number = this.incrementSeqId();
+        return new Promise<Array<ProcessDescription.ProcessDescription>>((resolve, reject): void => {
+            this._reqs[requestId] = (error, result) => {
+                delete this._reqs[requestId];
+                if (error != null) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            };
+            this.send_List(params, requestId);
+        });
+    }
     public send_AddProxy(rule: string, requestId: number): void {
         const output: thrift.TProtocol = new this.protocol(this.output);
         output.writeMessageBegin("AddProxy", thrift.Thrift.MessageType.CALL, requestId);
@@ -285,6 +423,15 @@ export class Client {
         const output: thrift.TProtocol = new this.protocol(this.output);
         output.writeMessageBegin("DelProxy", thrift.Thrift.MessageType.CALL, requestId);
         const args: DelProxyArgs = new DelProxyArgs({ rule });
+        args.write(output);
+        output.writeMessageEnd();
+        this.output.flush();
+        return;
+    }
+    public send_List(params: ListParams.ListParams, requestId: number): void {
+        const output: thrift.TProtocol = new this.protocol(this.output);
+        output.writeMessageBegin("List", thrift.Thrift.MessageType.CALL, requestId);
+        const args: ListArgs = new ListArgs({ params });
         args.write(output);
         output.writeMessageEnd();
         this.output.flush();
@@ -330,10 +477,31 @@ export class Client {
             }
         }
     }
+    public recv_List(input: thrift.TProtocol, mtype: thrift.Thrift.MessageType, requestId: number): void {
+        const noop = (): any => null;
+        const callback = this._reqs[requestId] || noop;
+        if (mtype === thrift.Thrift.MessageType.EXCEPTION) {
+            const x: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException();
+            x.read(input);
+            input.readMessageEnd();
+            return callback(x);
+        }
+        else {
+            const result: ListResult = ListResult.read(input);
+            input.readMessageEnd();
+            if (result.success != null) {
+                return callback(undefined, result.success);
+            }
+            else {
+                return callback(new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, "List failed: unknown result"));
+            }
+        }
+    }
 }
 export interface IHandler<Context = any> {
     AddProxy(context: Context, rule: string): Proc.Proc | Promise<Proc.Proc>;
     DelProxy(context: Context, rule: string): Proc.Proc | Promise<Proc.Proc>;
+    List(context: Context, params: ListParams.ListParams): Array<ProcessDescription.ProcessDescription> | Promise<Array<ProcessDescription.ProcessDescription>>;
 }
 export class Processor<Context = any> {
     public _handler: IHandler<Context>;
@@ -352,6 +520,10 @@ export class Processor<Context = any> {
             }
             case "process_DelProxy": {
                 this.process_DelProxy(requestId, input, output, context);
+                return;
+            }
+            case "process_List": {
+                this.process_List(requestId, input, output, context);
                 return;
             }
             default: {
@@ -413,6 +585,32 @@ export class Processor<Context = any> {
         }).catch((err: Error): void => {
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("DelProxy", thrift.Thrift.MessageType.EXCEPTION, requestId);
+            result.write(output);
+            output.writeMessageEnd();
+            output.flush();
+            return;
+        });
+    }
+    public process_List(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): void {
+        new Promise<Array<ProcessDescription.ProcessDescription>>((resolve, reject): void => {
+            try {
+                const args: ListArgs = ListArgs.read(input);
+                input.readMessageEnd();
+                resolve(this._handler.List(context, args.params));
+            }
+            catch (err) {
+                reject(err);
+            }
+        }).then((data: Array<ProcessDescription.ProcessDescription>): void => {
+            const result: ListResult = new ListResult({ success: data });
+            output.writeMessageBegin("List", thrift.Thrift.MessageType.REPLY, requestId);
+            result.write(output);
+            output.writeMessageEnd();
+            output.flush();
+            return;
+        }).catch((err: Error): void => {
+            const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            output.writeMessageBegin("List", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
             output.writeMessageEnd();
             output.flush();
