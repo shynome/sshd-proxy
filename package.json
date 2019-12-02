@@ -1,0 +1,39 @@
+{
+  "name": "@shynome/sshd-proxy",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shynome/sshd-proxy.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "LGPL3.0",
+  "bugs": {
+    "url": "https://github.com/shynome/sshd-proxy/issues"
+  },
+  "homepage": "https://github.com/shynome/sshd-proxy#readme",
+  "dependencies": {
+    "@material-ui/core": "^4.7.1",
+    "fs-extra": "^8.1.0",
+    "micro": "^9.3.5-canary.3",
+    "next": "^9.1.4",
+    "notistack": "^0.9.7",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "devDependencies": {
+    "@material-ui/icons": "^4.5.1",
+    "@types/fs-extra": "^8.0.1",
+    "@types/jest": "^24.0.23",
+    "@types/node": "^12.12.14",
+    "@types/react": "^16.9.13",
+    "jest": "^24.9.0",
+    "typescript": "^3.7.2",
+    "unstated-next": "^1.1.0"
+  }
+}
