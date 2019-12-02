@@ -6,10 +6,11 @@ import { Pm2Env, ProcessDescription } from "~libs/thrift/codegen";
 
 export class PM2 {
   link_status: 0 | 1 = 0
-  apps: any[] = require(apps_filepath).apps
   pm2_connect: Promise<void>
+  apps: any[]
   constructor() {
     this.pm2_connect = new Promise((rl, rj) => {
+      this.apps = JSON.parse(fs.readFileSync(apps_filepath, 'utf8')).apps
       pm2.connect(err => {
         if (err) return rj(err);
         this.link_status = 1

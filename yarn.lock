@@ -1308,6 +1308,11 @@
   resolved "https://registry.npm.taobao.org/@types/q/download/@types/q-1.5.2.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40types%2Fq%2Fdownload%2F%40types%2Fq-1.5.2.tgz#690a1475b84f2a884fd07cd797c00f5f31356ea8"
   integrity sha1-aQoUdbhPKohP0HzXl8APXzE1bqg=
 
+"@types/react-cache@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.npm.taobao.org/@types/react-cache/download/@types/react-cache-2.0.1.tgz#7f06bc9bb14f3ef60b9ffc545a473ad885f623db"
+  integrity sha1-fwa8m7FPPvYLn/xUWkc62IX2I9s=
+
 "@types/react-transition-group@^4.2.0":
   version "4.2.3"
   resolved "https://registry.npm.taobao.org/@types/react-transition-group/download/@types/react-transition-group-4.2.3.tgz#4924133f7268694058e415bf7aea2d4c21131470"
@@ -6883,6 +6888,11 @@ react-is@^16.7.0, react-is@^16.8.0, react-is@^16.8.1, react-is@^16.8.4, react-is
   version "16.12.0"
   resolved "https://registry.npm.taobao.org/react-is/download/react-is-16.12.0.tgz?cache=0&sync_timestamp=1574323625120&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Freact-is%2Fdownload%2Freact-is-16.12.0.tgz#2cc0fe0fba742d97fd527c42a13bec4eeb06241c"
   integrity sha1-LMD+D7p0LZf9UnxCoTvsTusGJBw=
+
+react-read@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.npm.taobao.org/react-read/download/react-read-1.0.2.tgz#e499a5ae8bdeb8b383b4b4794ca5667c4090c0e0"
+  integrity sha1-5JmlroveuLODtLR5TKVmfECQwOA=
 
 react-transition-group@^4.3.0:
   version "4.3.0"

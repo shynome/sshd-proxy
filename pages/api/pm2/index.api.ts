@@ -27,3 +27,6 @@ export class PM2Service implements ThriftServer {
 
 }
 
+const pm2SVC = new PM2Service()
+
+export default pm2SVC.httpHandle

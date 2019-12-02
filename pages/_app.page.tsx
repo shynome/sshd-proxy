@@ -5,20 +5,32 @@ import { SnackbarProvider } from "notistack";
 import { CssBaseline, NoSsr } from '@material-ui/core';
 import { theme } from './theme';
 
+import { PM2ClientContaienr } from "./pm2.client";
+
+export const Provider: React.StatelessComponent = (props) => {
+  return (
+    <ThemeProvider theme={theme}>
+      <SnackbarProvider>
+        <PM2ClientContaienr.Provider>
+          {props.children}
+        </PM2ClientContaienr.Provider>
+      </SnackbarProvider>
+    </ThemeProvider>
+  )
+}
+
 class MyApp extends App {
   render() {
     const { Component, pageProps } = this.props;
     return (
       <NoSsr>
-        <ThemeProvider theme={theme}>
-          <SnackbarProvider>
-            {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-            <CssBaseline />
-            <Component {...pageProps} />
-          </SnackbarProvider>
-        </ThemeProvider>
+        <Provider>
+          {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+          <CssBaseline />
+          <Component {...pageProps} />
+        </Provider>
       </NoSsr>
-    );
+    )
   }
 }
 
