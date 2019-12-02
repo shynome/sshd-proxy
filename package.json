@@ -13,6 +13,9 @@
   "keywords": [],
   "author": "",
   "license": "LGPL3.0",
+  "browser": {
+    "thrift": "./node_modules/thrift/lib/nodejs/lib/thrift/browser.js"
+  },
   "bugs": {
     "url": "https://github.com/shynome/sshd-proxy/issues"
   },
