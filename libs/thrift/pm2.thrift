@@ -72,3 +72,8 @@ struct Proc {
   21: Command command
   22: i64 exit_code
 }
+
+service PM2Svc {
+  Proc AddProxy(1: string rule)
+  Proc DelProxy(1: string rule)
+}

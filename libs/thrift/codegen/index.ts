@@ -9,3 +9,5 @@ export * from "./Pm2Env";
 export * from "./ProcessDescription";
 export * from "./Command";
 export * from "./Proc";
+import * as PM2Svc from "./PM2Svc";
+export { PM2Svc as PM2Svc };
