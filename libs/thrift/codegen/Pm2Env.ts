@@ -10,7 +10,7 @@ export interface IPm2EnvArgs {
     pm_out_log_path?: string;
     pm_err_log_path?: string;
     exec_interpreter?: string;
-    pm_uptime?: string;
+    pm_uptime?: number;
     unstable_restarts?: number;
     restart_time?: number;
     status?: string;
@@ -22,7 +22,7 @@ export class Pm2Env {
     public pm_out_log_path?: string;
     public pm_err_log_path?: string;
     public exec_interpreter?: string;
-    public pm_uptime?: string;
+    public pm_uptime?: number;
     public unstable_restarts?: number;
     public restart_time?: number;
     public status?: string;
@@ -83,8 +83,8 @@ export class Pm2Env {
             output.writeFieldEnd();
         }
         if (this.pm_uptime != null) {
-            output.writeFieldBegin("pm_uptime", thrift.Thrift.Type.STRING, 5);
-            output.writeString(this.pm_uptime);
+            output.writeFieldBegin("pm_uptime", thrift.Thrift.Type.I32, 5);
+            output.writeI32(this.pm_uptime);
             output.writeFieldEnd();
         }
         if (this.unstable_restarts != null) {
@@ -164,8 +164,8 @@ export class Pm2Env {
                     }
                     break;
                 case 5:
-                    if (fieldType === thrift.Thrift.Type.STRING) {
-                        const value_5: string = input.readString();
+                    if (fieldType === thrift.Thrift.Type.I32) {
+                        const value_5: number = input.readI32();
                         _args.pm_uptime = value_5;
                     }
                     else {

@@ -2,7 +2,7 @@ import pm2 from 'pm2'
 import *as proxy_rule from './proxy_rule'
 import fs from 'fs'
 import { apps_filepath } from "./config"
-import { Pm2Env, ProcessDescription } from "~libs/thrift/codegen";
+import { Pm2Env, ProcessDescription, Proc } from "~libs/thrift/codegen";
 
 export class PM2 {
   link_status: 0 | 1 = 0
@@ -39,7 +39,7 @@ export class PM2 {
     }
     return list as any
   }
-  async add_proxy(rule: string): Promise<Pm2Env> {
+  async add_proxy(rule: string): Promise<Proc> {
     await this.init()
     let startOptions = proxy_rule.parse(rule)
     let result = new Promise((rl, rj) => {
@@ -58,7 +58,7 @@ export class PM2 {
     this.apps_save()
     return result as any
   }
-  async del_proxy(rule: string): Promise<Pm2Env> {
+  async del_proxy(rule: string): Promise<Proc> {
     await this.init()
     let result = new Promise((rl, rj) => {
       pm2.delete(rule, (err, proc) => {

@@ -20,7 +20,7 @@ export interface IProcArgs {
     pm_err_log_path?: string;
     pm_pid_path?: string;
     status?: string;
-    pm_uptime?: string;
+    pm_uptime?: number;
     vizion_running?: boolean;
     created_at?: number;
     pm_id?: number;
@@ -44,7 +44,7 @@ export class Proc {
     public pm_err_log_path?: string;
     public pm_pid_path?: string;
     public status?: string;
-    public pm_uptime?: string;
+    public pm_uptime?: number;
     public vizion_running?: boolean;
     public created_at?: number;
     public pm_id?: number;
@@ -193,8 +193,8 @@ export class Proc {
             output.writeFieldEnd();
         }
         if (this.pm_uptime != null) {
-            output.writeFieldBegin("pm_uptime", thrift.Thrift.Type.STRING, 14);
-            output.writeString(this.pm_uptime);
+            output.writeFieldBegin("pm_uptime", thrift.Thrift.Type.I32, 14);
+            output.writeI32(this.pm_uptime);
             output.writeFieldEnd();
         }
         if (this.vizion_running != null) {
@@ -377,8 +377,8 @@ export class Proc {
                     }
                     break;
                 case 14:
-                    if (fieldType === thrift.Thrift.Type.STRING) {
-                        const value_16: string = input.readString();
+                    if (fieldType === thrift.Thrift.Type.I32) {
+                        const value_16: number = input.readI32();
                         _args.pm_uptime = value_16;
                     }
                     else {

@@ -16,7 +16,7 @@ struct Pm2Env {
   // The interpreter used.
   4: string exec_interpreter
   // The uptime of the process.
-  5: string pm_uptime
+  5: i32 pm_uptime
   // The number of unstable restarts the process has been through.
   6: i32 unstable_restarts
   // 
@@ -62,7 +62,7 @@ struct Proc {
   11: string pm_err_log_path
   12: string pm_pid_path
   13: string status
-  14: string pm_uptime
+  14: i32 pm_uptime
   15: bool vizion_running
   16: i32 created_at
   17: i32 pm_id

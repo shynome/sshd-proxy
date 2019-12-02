@@ -1,5 +1,6 @@
 import { ThriftServer, createThriftServer, handleThriftServer, thriftApiPageConfig } from "@shynome/next-thrift-utils";
-import { PM2Svc, Pm2Env } from "~libs/thrift/codegen";
+export { thriftApiPageConfig as config }
+import { PM2Svc, Pm2Env, ProcessDescription, Monit } from "~libs/thrift/codegen";
 import { NextApiRequest } from "next";
 import { pm2 } from "./pm2";
 
@@ -19,6 +20,12 @@ export class PM2Service implements ThriftServer {
     },
     List: async (ctx, params) => {
       let res = await pm2.list(params.pm_id)
+      res = res.map((proc)=>{
+        proc.pm2_env = new Pm2Env(proc.pm2_env)
+        proc.monit = new Monit(proc.monit)
+        proc = new ProcessDescription(proc)
+        return proc
+      })
       return res
     }
   })
@@ -27,6 +34,6 @@ export class PM2Service implements ThriftServer {
 
 }
 
-const pm2SVC = new PM2Service()
+const svc = new PM2Service()
 
-export default pm2SVC.httpHandle
+export default svc.httpHandle
