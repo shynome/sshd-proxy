@@ -26,7 +26,7 @@ export class PM2 {
       await this.pm2_connect
     }
   }
-  async list(pm_id?: number): Promise<ProcessDescription[]> {
+  async list(pm_id?: number): Promise<pm2.ProcessDescription[]> {
     await this.init()
     let list: pm2.ProcessDescription[] = await new Promise((rl, rj) => {
       pm2.list((err, list) => {

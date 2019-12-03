@@ -33,9 +33,9 @@ struct ProcessDescription {
   // The name given in the original start command.
   1: string name
   // The pid of the process.
-  2: string pid
+  2: i32 pid
   // The pid for the pm2 God daemon process.
-  3: string pm_id
+  3: i32 pm_id
   4: Monit monit
   5: Pm2Env pm2_env
 }

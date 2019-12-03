@@ -20,13 +20,17 @@ export class PM2Service implements ThriftServer {
     },
     List: async (ctx, params) => {
       let res = await pm2.list(params.pm_id)
-      res = res.map((proc)=>{
-        proc.pm2_env = new Pm2Env(proc.pm2_env)
-        proc.monit = new Monit(proc.monit)
-        proc = new ProcessDescription(proc)
-        return proc
+      let resp = res.map((proc) => {
+        return new ProcessDescription({
+          ...proc,
+          monit: new Monit({ ...proc.monit }),
+          pm2_env: new Pm2Env({
+            ...proc.pm2_env,
+            instances: proc.pm2_env.instances,
+          }),
+        })
       })
-      return res
+      return resp
     }
   })
 

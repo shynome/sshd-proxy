@@ -9,15 +9,15 @@ import * as Monit from "./Monit";
 import * as Pm2Env from "./Pm2Env";
 export interface IProcessDescriptionArgs {
     name?: string;
-    pid?: string;
-    pm_id?: string;
+    pid?: number;
+    pm_id?: number;
     monit?: Monit.Monit;
     pm2_env?: Pm2Env.Pm2Env;
 }
 export class ProcessDescription {
     public name?: string;
-    public pid?: string;
-    public pm_id?: string;
+    public pid?: number;
+    public pm_id?: number;
     public monit?: Monit.Monit;
     public pm2_env?: Pm2Env.Pm2Env;
     constructor(args?: IProcessDescriptionArgs) {
@@ -45,13 +45,13 @@ export class ProcessDescription {
             output.writeFieldEnd();
         }
         if (this.pid != null) {
-            output.writeFieldBegin("pid", thrift.Thrift.Type.STRING, 2);
-            output.writeString(this.pid);
+            output.writeFieldBegin("pid", thrift.Thrift.Type.I32, 2);
+            output.writeI32(this.pid);
             output.writeFieldEnd();
         }
         if (this.pm_id != null) {
-            output.writeFieldBegin("pm_id", thrift.Thrift.Type.STRING, 3);
-            output.writeString(this.pm_id);
+            output.writeFieldBegin("pm_id", thrift.Thrift.Type.I32, 3);
+            output.writeI32(this.pm_id);
             output.writeFieldEnd();
         }
         if (this.monit != null) {
@@ -89,8 +89,8 @@ export class ProcessDescription {
                     }
                     break;
                 case 2:
-                    if (fieldType === thrift.Thrift.Type.STRING) {
-                        const value_2: string = input.readString();
+                    if (fieldType === thrift.Thrift.Type.I32) {
+                        const value_2: number = input.readI32();
                         _args.pid = value_2;
                     }
                     else {
@@ -98,8 +98,8 @@ export class ProcessDescription {
                     }
                     break;
                 case 3:
-                    if (fieldType === thrift.Thrift.Type.STRING) {
-                        const value_3: string = input.readString();
+                    if (fieldType === thrift.Thrift.Type.I32) {
+                        const value_3: number = input.readI32();
                         _args.pm_id = value_3;
                     }
                     else {
