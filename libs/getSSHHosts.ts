@@ -25,6 +25,8 @@ export const getSSHHosts = async (sshdir = path.join(process.env.HOME, '.ssh')) 
     content = content + '\n' + buf
   }))
   let config: { value: string }[] = SSHConfig.parse(content)
-  let hosts = config.map(h => h.value).filter(h => !/\*/.test(h))
+  let hosts = config.map(h => h.value)
+  hosts = hosts.filter(h => !/\*/.test(h))
+  hosts = Array.from(new Set(hosts))
   return hosts
 }

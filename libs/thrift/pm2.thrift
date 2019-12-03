@@ -24,7 +24,7 @@ struct Pm2Env {
   // 'online' | 'stopping' | 'stopped' | 'launching' | 'errored' | 'one-launch-status'
   8: string status
   // The number of running instances.
-  9: i32 instances
+  // 9: i32 instances
   // The path of the script being run in this process.
   10: string pm_exec_path
 }
@@ -81,4 +81,5 @@ service PM2Svc {
   Proc AddProxy(1: string rule)
   Proc DelProxy(1: string rule)
   list<ProcessDescription> List(1: ListParams params)
+  list<string> GetHosts()
 }

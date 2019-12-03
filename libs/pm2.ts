@@ -39,7 +39,7 @@ export class PM2 {
     }
     return list as any
   }
-  async add_proxy(rule: string): Promise<Proc> {
+  async add_proxy(rule: string): Promise<pm2.Proc> {
     await this.init()
     let startOptions = proxy_rule.parse(rule)
     let result = new Promise((rl, rj) => {
@@ -58,7 +58,7 @@ export class PM2 {
     this.apps_save()
     return result as any
   }
-  async del_proxy(rule: string): Promise<Proc> {
+  async del_proxy(rule: string): Promise<pm2.Proc> {
     await this.init()
     let result = new Promise((rl, rj) => {
       pm2.delete(rule, (err, proc) => {

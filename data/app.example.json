@@ -1,0 +1,9 @@
+{
+  "apps": [
+    {
+      "name": "rule",
+      "script": "ssh",
+      "args": "-NT -D 0.0.0.0:1080 fever-tools-sh-1"
+    }
+  ]
+}

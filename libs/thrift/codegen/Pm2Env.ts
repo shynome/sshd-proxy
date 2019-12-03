@@ -14,7 +14,6 @@ export interface IPm2EnvArgs {
     unstable_restarts?: number;
     restart_time?: number;
     status?: string;
-    instances?: number;
     pm_exec_path?: string;
 }
 export class Pm2Env {
@@ -26,7 +25,6 @@ export class Pm2Env {
     public unstable_restarts?: number;
     public restart_time?: number;
     public status?: string;
-    public instances?: number;
     public pm_exec_path?: string;
     constructor(args?: IPm2EnvArgs) {
         if (args != null && args.pm_cwd != null) {
@@ -52,9 +50,6 @@ export class Pm2Env {
         }
         if (args != null && args.status != null) {
             this.status = args.status;
-        }
-        if (args != null && args.instances != null) {
-            this.instances = args.instances;
         }
         if (args != null && args.pm_exec_path != null) {
             this.pm_exec_path = args.pm_exec_path;
@@ -100,11 +95,6 @@ export class Pm2Env {
         if (this.status != null) {
             output.writeFieldBegin("status", thrift.Thrift.Type.STRING, 8);
             output.writeString(this.status);
-            output.writeFieldEnd();
-        }
-        if (this.instances != null) {
-            output.writeFieldBegin("instances", thrift.Thrift.Type.I32, 9);
-            output.writeI32(this.instances);
             output.writeFieldEnd();
         }
         if (this.pm_exec_path != null) {
@@ -199,19 +189,10 @@ export class Pm2Env {
                         input.skip(fieldType);
                     }
                     break;
-                case 9:
-                    if (fieldType === thrift.Thrift.Type.I32) {
-                        const value_9: number = input.readI32();
-                        _args.instances = value_9;
-                    }
-                    else {
-                        input.skip(fieldType);
-                    }
-                    break;
                 case 10:
                     if (fieldType === thrift.Thrift.Type.STRING) {
-                        const value_10: string = input.readString();
-                        _args.pm_exec_path = value_10;
+                        const value_9: string = input.readString();
+                        _args.pm_exec_path = value_9;
                     }
                     else {
                         input.skip(fieldType);

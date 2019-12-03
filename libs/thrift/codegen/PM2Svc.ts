@@ -185,6 +185,37 @@ export class ListArgs {
         }
     }
 }
+export interface IGetHostsArgsArgs {
+}
+export class GetHostsArgs {
+    constructor() {
+    }
+    public write(output: thrift.TProtocol): void {
+        output.writeStructBegin("GetHostsArgs");
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    }
+    public static read(input: thrift.TProtocol): GetHostsArgs {
+        input.readStructBegin();
+        while (true) {
+            const ret: thrift.TField = input.readFieldBegin();
+            const fieldType: thrift.Thrift.Type = ret.ftype;
+            const fieldId: number = ret.fid;
+            if (fieldType === thrift.Thrift.Type.STOP) {
+                break;
+            }
+            switch (fieldId) {
+                default: {
+                    input.skip(fieldType);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        return new GetHostsArgs();
+    }
+}
 export interface IAddProxyResultArgs {
     success?: Proc.Proc;
 }
@@ -349,6 +380,68 @@ export class ListResult {
         return new ListResult(_args);
     }
 }
+export interface IGetHostsResultArgs {
+    success?: Array<string>;
+}
+export class GetHostsResult {
+    public success?: Array<string>;
+    constructor(args?: IGetHostsResultArgs) {
+        if (args != null && args.success != null) {
+            this.success = args.success;
+        }
+    }
+    public write(output: thrift.TProtocol): void {
+        output.writeStructBegin("GetHostsResult");
+        if (this.success != null) {
+            output.writeFieldBegin("success", thrift.Thrift.Type.LIST, 0);
+            output.writeListBegin(thrift.Thrift.Type.STRING, this.success.length);
+            this.success.forEach((value_9: string): void => {
+                output.writeString(value_9);
+            });
+            output.writeListEnd();
+            output.writeFieldEnd();
+        }
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    }
+    public static read(input: thrift.TProtocol): GetHostsResult {
+        input.readStructBegin();
+        let _args: any = {};
+        while (true) {
+            const ret: thrift.TField = input.readFieldBegin();
+            const fieldType: thrift.Thrift.Type = ret.ftype;
+            const fieldId: number = ret.fid;
+            if (fieldType === thrift.Thrift.Type.STOP) {
+                break;
+            }
+            switch (fieldId) {
+                case 0:
+                    if (fieldType === thrift.Thrift.Type.LIST) {
+                        const value_10: Array<string> = new Array<string>();
+                        const metadata_2: thrift.TList = input.readListBegin();
+                        const size_2: number = metadata_2.size;
+                        for (let i_2: number = 0; i_2 < size_2; i_2++) {
+                            const value_11: string = input.readString();
+                            value_10.push(value_11);
+                        }
+                        input.readListEnd();
+                        _args.success = value_10;
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                default: {
+                    input.skip(fieldType);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        return new GetHostsResult(_args);
+    }
+}
 export class Client {
     public _seqid: number;
     public _reqs: {
@@ -410,6 +503,21 @@ export class Client {
             this.send_List(params, requestId);
         });
     }
+    public GetHosts(): Promise<Array<string>> {
+        const requestId: number = this.incrementSeqId();
+        return new Promise<Array<string>>((resolve, reject): void => {
+            this._reqs[requestId] = (error, result) => {
+                delete this._reqs[requestId];
+                if (error != null) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            };
+            this.send_GetHosts(requestId);
+        });
+    }
     public send_AddProxy(rule: string, requestId: number): void {
         const output: thrift.TProtocol = new this.protocol(this.output);
         output.writeMessageBegin("AddProxy", thrift.Thrift.MessageType.CALL, requestId);
@@ -432,6 +540,15 @@ export class Client {
         const output: thrift.TProtocol = new this.protocol(this.output);
         output.writeMessageBegin("List", thrift.Thrift.MessageType.CALL, requestId);
         const args: ListArgs = new ListArgs({ params });
+        args.write(output);
+        output.writeMessageEnd();
+        this.output.flush();
+        return;
+    }
+    public send_GetHosts(requestId: number): void {
+        const output: thrift.TProtocol = new this.protocol(this.output);
+        output.writeMessageBegin("GetHosts", thrift.Thrift.MessageType.CALL, requestId);
+        const args: GetHostsArgs = new GetHostsArgs();
         args.write(output);
         output.writeMessageEnd();
         this.output.flush();
@@ -497,11 +614,32 @@ export class Client {
             }
         }
     }
+    public recv_GetHosts(input: thrift.TProtocol, mtype: thrift.Thrift.MessageType, requestId: number): void {
+        const noop = (): any => null;
+        const callback = this._reqs[requestId] || noop;
+        if (mtype === thrift.Thrift.MessageType.EXCEPTION) {
+            const x: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException();
+            x.read(input);
+            input.readMessageEnd();
+            return callback(x);
+        }
+        else {
+            const result: GetHostsResult = GetHostsResult.read(input);
+            input.readMessageEnd();
+            if (result.success != null) {
+                return callback(undefined, result.success);
+            }
+            else {
+                return callback(new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, "GetHosts failed: unknown result"));
+            }
+        }
+    }
 }
 export interface IHandler<Context = any> {
     AddProxy(context: Context, rule: string): Proc.Proc | Promise<Proc.Proc>;
     DelProxy(context: Context, rule: string): Proc.Proc | Promise<Proc.Proc>;
     List(context: Context, params: ListParams.ListParams): Array<ProcessDescription.ProcessDescription> | Promise<Array<ProcessDescription.ProcessDescription>>;
+    GetHosts(context: Context): Array<string> | Promise<Array<string>>;
 }
 export class Processor<Context = any> {
     public _handler: IHandler<Context>;
@@ -524,6 +662,10 @@ export class Processor<Context = any> {
             }
             case "process_List": {
                 this.process_List(requestId, input, output, context);
+                return;
+            }
+            case "process_GetHosts": {
+                this.process_GetHosts(requestId, input, output, context);
                 return;
             }
             default: {
@@ -611,6 +753,31 @@ export class Processor<Context = any> {
         }).catch((err: Error): void => {
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("List", thrift.Thrift.MessageType.EXCEPTION, requestId);
+            result.write(output);
+            output.writeMessageEnd();
+            output.flush();
+            return;
+        });
+    }
+    public process_GetHosts(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): void {
+        new Promise<Array<string>>((resolve, reject): void => {
+            try {
+                input.readMessageEnd();
+                resolve(this._handler.GetHosts(context));
+            }
+            catch (err) {
+                reject(err);
+            }
+        }).then((data: Array<string>): void => {
+            const result: GetHostsResult = new GetHostsResult({ success: data });
+            output.writeMessageBegin("GetHosts", thrift.Thrift.MessageType.REPLY, requestId);
+            result.write(output);
+            output.writeMessageEnd();
+            output.flush();
+            return;
+        }).catch((err: Error): void => {
+            const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            output.writeMessageBegin("GetHosts", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
             output.writeMessageEnd();
             output.flush();
