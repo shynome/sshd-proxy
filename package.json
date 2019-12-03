@@ -31,12 +31,14 @@
     "@shynome/thrift-server": "^0.0.1",
     "dotenv": "^8.2.0",
     "fs-extra": "^8.1.0",
+    "glob": "^7.1.6",
     "micro": "^9.3.5-canary.3",
     "next": "^9.1.4",
     "notistack": "^0.9.7",
     "pm2": "^4.2.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "ssh-config": "^2.0.0",
     "thrift": "0.12"
   },
   "devDependencies": {
@@ -44,6 +46,7 @@
     "@shynome/thrift-typescript": "^3.8.2",
     "@types/dotenv": "^8.2.0",
     "@types/fs-extra": "^8.0.1",
+    "@types/glob": "^7.1.1",
     "@types/jest": "^24.0.23",
     "@types/node": "^12.12.14",
     "@types/react": "^16.9.13",
