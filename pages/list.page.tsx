@@ -19,23 +19,6 @@ const createColumn = (displayName: string, opath: (item: ProcessDescription) => 
   opath
 })
 
-const DeleteProxyButton: React.StatelessComponent<{ name: string }> = (props) => {
-  const client = PM2ClientContaienr.useContainer()
-  const [pending, setPending] = useState(false)
-  return (
-    <IconButton onClick={() => {
-      setPending(true)
-      client.DelProxy(props.name).finally(() => setPending(false))
-    }}>
-      {
-        pending
-          ? <CircularProgress />
-          : <IconDelete />
-      }
-    </IconButton>
-  )
-}
-
 const columns = [
   createColumn('id', item => item.pm_id),
   createColumn('name', item => item.name),
@@ -43,7 +26,10 @@ const columns = [
   createColumn('restart', item => item.pm2_env.restart_time),
   createColumn('status', item => item.pm2_env.status),
 ]
-export const ProcList: React.StatelessComponent<{ data: Readable<ProcessDescription[]> }> = ({ data }) => {
+export const ProcList: React.StatelessComponent<{
+  data: Readable<ProcessDescription[]>,
+  handleDelete: (name: string) => any
+}> = ({ data, handleDelete }) => {
   const items = data.read()
   const styles = useStyles(useTheme())
   return (
@@ -63,7 +49,9 @@ export const ProcList: React.StatelessComponent<{ data: Readable<ProcessDescript
               <TableCell className={styles['tbody-cell']}>{col.opath(item)}</TableCell>
             ))}
             <TableCell className={styles['tbody-cell']}>
-              <DeleteProxyButton name={item.name} />
+              <IconButton onClick={() => handleDelete(item.name)}>
+                <IconDelete />
+              </IconButton>
             </TableCell>
           </TableRow>
         ))}
@@ -72,16 +60,25 @@ export const ProcList: React.StatelessComponent<{ data: Readable<ProcessDescript
   )
 }
 
+import { useSnackbar } from "notistack";
 export const PM2List: React.StatelessComponent = () => {
   const styles = useStyles(useTheme())
   const client = PM2ClientContaienr.useContainer()
-  const items = Readable.create(client.List(new ListParams()))
+  const { enqueueSnackbar } = useSnackbar()
+  const [items, setItems] = useState(
+    Readable.create(client.List(new ListParams()))
+  )
+  const handleDelete = async (name) => {
+    await client.DelProxy(name)
+    enqueueSnackbar('删除成功', { autoHideDuration: 2e3 })
+    setItems(Readable.create(client.List(new ListParams())))
+  }
   return (
     <Grid container justify='center'>
       <Grid item xs={8}>
         <Paper className={styles.main}>
           <Suspense fallback={<LinearProgress />}>
-            <ProcList data={items} />
+            <ProcList data={items} handleDelete={handleDelete} />
           </Suspense>
         </Paper>
       </Grid>

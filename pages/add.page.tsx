@@ -156,11 +156,16 @@ export const AddProxy: React.StatelessComponent<Props> = ({
   )
 }
 
+import { useSnackbar } from "notistack";
 export default () => {
   const client = PM2ClientContaienr.useContainer()
+  const { enqueueSnackbar } = useSnackbar()
   return (
     <AddProxy onSubmit={async (rule) => {
       await client.AddProxy(rule)
+      enqueueSnackbar('添加成功',{
+        autoHideDuration: 2e3
+      })
     }} />
   )
 }
