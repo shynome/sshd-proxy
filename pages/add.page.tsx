@@ -1,4 +1,4 @@
-import React, { useState, Fragment, Suspense } from "react";
+import React, { useState, Fragment, Suspense, useEffect } from "react";
 import {
   useTheme,
   TextField, Paper,
@@ -14,12 +14,19 @@ export enum SSHType {
   LocalPortForwarding = 'local port forwarding',
 }
 
-export const Hosts: React.StatelessComponent<{ data: Readable<string[]> }> = ({ data }) => {
-  let hosts = data.read()
+export const Hosts = () => {
+  const client = PM2ClientContaienr.useContainer()
+  const [hosts, setHosts] = useState<string[]>([])
+  useEffect(() => {
+    client.GetHosts().then(hosts => {
+      setHosts(hosts)
+    })
+  }, [])
   return (
     <Autocomplete
       options={hosts}
       freeSolo
+      loading={hosts.length === 0}
       renderInput={params => (
         <TextField {...params} label="Host" variant="outlined" fullWidth />
       )}
@@ -40,8 +47,6 @@ export const AddProxy: React.StatelessComponent = () => {
   const styles = useStyles(useTheme())
   const [sshType, setSSHType] = useState(SSHType.LocalPortForwarding)
   const [host, setHost] = useState('loading')
-  const client = PM2ClientContaienr.useContainer()
-  const hosts = Readable.create(client.GetHosts())
   return (
     <Paper className={styles.main}>
       <Select value={sshType} onChange={(e) => setSSHType(e.target.value as any)}>
@@ -50,9 +55,7 @@ export const AddProxy: React.StatelessComponent = () => {
         ))}
       </Select>
       <form>
-        <Suspense fallback={<div>host</div>}>
-          <Hosts data={hosts} />
-        </Suspense>
+        <Hosts />
       </form>
     </Paper>
   )
