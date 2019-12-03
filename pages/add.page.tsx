@@ -19,6 +19,7 @@ export const Hosts: React.StatelessComponent<{ data: Readable<string[]> }> = ({ 
   return (
     <Autocomplete
       options={hosts}
+      freeSolo
       renderInput={params => (
         <TextField {...params} label="Host" variant="outlined" fullWidth />
       )}
