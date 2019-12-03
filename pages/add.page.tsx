@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   useTheme,
   TextField, Paper,
@@ -9,20 +9,26 @@ import {
 } from "@material-ui/core";
 import { useStyles } from "./add.style";
 import { PM2ClientContaienr } from "./pm2.client";
-import { Readable } from "react-read";
+import { useSnackbar } from "notistack";
 import { Autocomplete } from "@material-ui/lab";
 import { useFormFields } from "~modules/browser-utils";
+import { PM2Svc } from "~libs/thrift/codegen";
 
 export enum SSHType {
   Proxy = 'proxy',
   LocalPortForwarding = 'local port forwarding',
 }
 
+let _hosts: Promise<string[]>
+const getHosts = (client: PM2Svc.Client) => {
+  return _hosts || (_hosts = client.GetHosts())
+}
+
 export const Hosts: React.StatelessComponent<{ onChange: (value: { target: { value: string } }) => void }> = (props) => {
   const client = PM2ClientContaienr.useContainer()
   const [hosts, setHosts] = useState<string[]>([])
-  useMemo(() => {
-    client.GetHosts().then(hosts => {
+  useEffect(() => {
+    getHosts(client).then(hosts => {
       setHosts(hosts)
     })
   }, [])
@@ -56,17 +62,20 @@ export interface FormData {
 }
 
 export interface Props {
-  onSubmit: (rule: string, fields: FormData) => any
   open?: boolean
+  onSubmit: (rule: string, fields: FormData) => any
+  onClose?: () => any
 }
 
-export const AddProxy: React.StatelessComponent<Props> = ({
+export const AddProxyDialog: React.StatelessComponent<Props> = ({
   open = true,
   onSubmit,
+  onClose = () => 0,
 }) => {
   const styles = useStyles(useTheme())
   const [sshType, setSSHType] = useState(SSHType.LocalPortForwarding)
   const [pending, setPending] = useState(false)
+  const { enqueueSnackbar } = useSnackbar()
   const [fields, saveField] = useFormFields({
     localPort: '',
     remoteAddr: '',
@@ -88,7 +97,12 @@ export const AddProxy: React.StatelessComponent<Props> = ({
           fields.host,
         ].filter(v => v).join(':')
         Promise
-          .all([onSubmit(rule, fields)])
+          .resolve(onSubmit(rule, fields))
+          .then(() => {
+            enqueueSnackbar('添加成功', {
+              autoHideDuration: 2e3
+            })
+          })
           .finally(() => {
             setPending(false)
           })
@@ -114,6 +128,7 @@ export const AddProxy: React.StatelessComponent<Props> = ({
                 variant='outlined'
                 type='number'
                 required
+                autoFocus
                 label='本机端口'
                 onChange={saveField('localPort')}
               />
@@ -143,7 +158,7 @@ export const AddProxy: React.StatelessComponent<Props> = ({
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button size='large' disabled={pending} >取消</Button>
+          <Button size='large' disabled={pending} onClick={onClose}>取消</Button>
           <Button
             size='large' disabled={pending} type='submit' color='primary'
             startIcon={pending ? <CircularProgress size={20} /> : null}
@@ -156,16 +171,9 @@ export const AddProxy: React.StatelessComponent<Props> = ({
   )
 }
 
-import { useSnackbar } from "notistack";
 export default () => {
   const client = PM2ClientContaienr.useContainer()
-  const { enqueueSnackbar } = useSnackbar()
   return (
-    <AddProxy onSubmit={async (rule) => {
-      await client.AddProxy(rule)
-      enqueueSnackbar('添加成功',{
-        autoHideDuration: 2e3
-      })
-    }} />
+    <AddProxyDialog onSubmit={(rule) => client.AddProxy(rule)} />
   )
 }

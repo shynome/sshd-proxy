@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useState, useEffect, useMemo } from "react";
 import { PM2ClientContaienr } from "./pm2.client";
 import {
   useTheme,
@@ -9,9 +9,7 @@ import {
 } from "@material-ui/core";
 import IconDelete from "@material-ui/icons/Delete";
 import { ListParams, ProcessDescription } from "~libs/thrift/codegen";
-import { Readable } from "react-read";
 import { timeSince } from "~libs/utils";
-
 import { useStyles } from "./list.styles";
 
 const createColumn = (displayName: string, opath: (item: ProcessDescription) => any) => ({
@@ -27,10 +25,9 @@ const columns = [
   createColumn('status', item => item.pm2_env.status),
 ]
 export const ProcList: React.StatelessComponent<{
-  data: Readable<ProcessDescription[]>,
+  data: ProcessDescription[],
   handleDelete: (name: string) => any
-}> = ({ data, handleDelete }) => {
-  const items = data.read()
+}> = ({ data: items, handleDelete }) => {
   const styles = useStyles(useTheme())
   return (
     <Table stickyHeader size='small' className={styles.table}>
@@ -65,13 +62,17 @@ export const PM2List: React.StatelessComponent = () => {
   const styles = useStyles(useTheme())
   const client = PM2ClientContaienr.useContainer()
   const { enqueueSnackbar } = useSnackbar()
-  const [items, setItems] = useState(
-    Readable.create(client.List(new ListParams()))
-  )
+  const [items, setItems] = useState<ProcessDescription[]>([])
+  const updateItems = useMemo(() => () => {
+    client.List(new ListParams()).then(items => setItems(items))
+  }, [setItems])
+  useEffect(() => {
+    updateItems()
+  }, [])
   const handleDelete = async (name) => {
     await client.DelProxy(name)
     enqueueSnackbar('删除成功', { autoHideDuration: 2e3 })
-    setItems(Readable.create(client.List(new ListParams())))
+    updateItems()
   }
   return (
     <Grid container justify='center'>
