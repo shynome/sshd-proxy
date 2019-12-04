@@ -25,3 +25,10 @@ export function timeSince(date: number) {
   }
   return Math.floor(seconds) + 's';
 }
+
+export const getEnv = (name) => {
+  if (process.browser) {
+    return undefined
+  }
+  return process.env[name]
+}

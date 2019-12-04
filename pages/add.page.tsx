@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import {
   useTheme,
-  TextField, Paper,
+  TextField,
   Select, MenuItem, CircularProgress,
   Grid,
   Dialog, DialogTitle, DialogContent, DialogActions,
@@ -13,6 +13,7 @@ import { useSnackbar } from "notistack";
 import { Autocomplete } from "@material-ui/lab";
 import { useFormFields } from "~modules/browser-utils";
 import { PM2Svc } from "~libs/thrift/codegen";
+import { parse } from "~libs/proxy_rule";
 
 export enum SSHType {
   Proxy = 'proxy',
@@ -39,7 +40,14 @@ export const Hosts: React.StatelessComponent<{ onChange: (value: { target: { val
       loading={hosts.length === 0}
       onInputChange={(e, value) => props.onChange({ target: { value } })}
       renderInput={params => (
-        <TextField {...params} label="Host" variant="outlined" name='host' required fullWidth />
+        <TextField
+          {...params}
+          label="Host"
+          variant="outlined"
+          required
+          fullWidth
+          helperText='要使用的远程主机'
+        />
       )}
     />
   )
@@ -55,9 +63,9 @@ const sshTypes = [
 ]
 
 export interface FormData {
-  localPort: string,
+  localPort: number,
   remoteAddr: string,
-  remotePort: string,
+  remotePort: number,
   host: string,
 }
 
@@ -65,61 +73,101 @@ export interface Props {
   open?: boolean
   onSubmit: (rule: string, fields: FormData) => any
   onClose?: () => any
-  defaultFields?: Partial<FormData>
+  nextLocalPort?: number
 }
 
 export const AddProxyDialog: React.StatelessComponent<Props> = ({
   open = true,
   onSubmit,
   onClose = () => 0,
-  defaultFields = {}
+  nextLocalPort = 0,
 }) => {
   const styles = useStyles(useTheme())
   const [sshType, setSSHType] = useState(SSHType.LocalPortForwarding)
   const [pending, setPending] = useState(false)
   const { enqueueSnackbar } = useSnackbar()
-  const [fields, saveField] = useFormFields({
-    localPort: defaultFields.localPort || '',
-    remoteAddr: defaultFields.remoteAddr || '127.0.0.1',
-    remotePort: '',
+  const [fields, saveField, setFields] = useFormFields<FormData>({
+    localPort: nextLocalPort,
+    remoteAddr: '127.0.0.1',
+    remotePort: 6379,
     host: '',
   })
+  useEffect(() => {
+    setFields({
+      ...fields,
+      localPort: nextLocalPort,
+    })
+  }, [nextLocalPort])
+
+  const [rule, setRule] = useState('')
+  useEffect(() => {
+    let rule: string
+    switch (sshType) {
+      case SSHType.LocalPortForwarding:
+        rule = [
+          fields.localPort,
+          fields.host,
+          fields.remoteAddr,
+          fields.remotePort,
+        ].filter(v => v).join(':');
+        break;
+      case SSHType.Proxy:
+        rule = [
+          fields.localPort,
+          fields.host,
+        ].join(':');
+        break;
+    }
+    setRule(rule)
+  }, [
+    sshType,
+    fields.localPort,
+    fields.remoteAddr,
+    fields.remotePort,
+    fields.host,
+  ])
+
+  const [cmd, setCmd] = useState('')
+  useEffect(() => {
+    if (!fields.host || !fields.localPort) {
+      setCmd('')
+      return
+    }
+    try {
+      let p = parse(rule)
+      console.log(p.name)
+      let cmd = `${p.script} ${(p.args as string[]).join(' ')}`
+      setCmd(cmd)
+    } catch (e) {
+      console.error(e)
+      // do nothing
+    }
+  }, [
+    rule,
+    fields.host,
+    fields.localPort,
+  ])
+
+  const handleSubmit = () => {
+    if (pending) {
+      return
+    }
+    setPending(true)
+    Promise
+      .resolve(onSubmit(rule, fields))
+      .then(() => {
+        enqueueSnackbar('添加成功', {
+          autoHideDuration: 2e3
+        })
+      })
+      .finally(() => {
+        setPending(false)
+      })
+  }
+
   return (
     <Dialog open={open} maxWidth='md'>
-      <form onSubmit={(e) => {
-        e.preventDefault()
-        if (pending) {
-          return
-        }
-        setPending(true)
-        let rule: string
-        switch (sshType) {
-          case SSHType.LocalPortForwarding:
-            rule = [
-              fields.localPort,
-              fields.remoteAddr,
-              fields.remotePort,
-              fields.host,
-            ].filter(v => v).join(':');
-            break;
-          case SSHType.Proxy:
-            rule = [
-              fields.localPort,
-              fields.host,
-            ].join(':');
-            break;
-        }
-        Promise
-          .resolve(onSubmit(rule, fields))
-          .then(() => {
-            enqueueSnackbar('添加成功', {
-              autoHideDuration: 2e3
-            })
-          })
-          .finally(() => {
-            setPending(false)
-          })
-      }}>
+      <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
         <DialogTitle>添加新的 SSH 中转</DialogTitle>
         <DialogContent>
           <Grid container spacing={2}>
@@ -143,6 +191,8 @@ export const AddProxyDialog: React.StatelessComponent<Props> = ({
                 required
                 autoFocus
                 label='本机端口'
+                helperText='占用的本机端口'
+                value={fields.localPort}
                 onChange={saveField('localPort')}
               />
             </Grid>
@@ -153,6 +203,8 @@ export const AddProxyDialog: React.StatelessComponent<Props> = ({
                 disabled={sshType === SSHType.Proxy}
                 required={sshType === SSHType.LocalPortForwarding}
                 label='远端地址'
+                helperText='反向代理的主机地址'
+                value={fields.remoteAddr}
                 onChange={saveField('remoteAddr')}
               />
             </Grid>
@@ -164,10 +216,21 @@ export const AddProxyDialog: React.StatelessComponent<Props> = ({
                 required={sshType === SSHType.LocalPortForwarding}
                 type='number'
                 label='远端端口'
+                helperText='反向代理的主机端口'
+                value={fields.remotePort}
                 onChange={saveField('remotePort')}
               />
             </Grid>
             <Grid item xs={12}><Hosts onChange={saveField('host')} /></Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                variant='outlined'
+                label='ssh cmd'
+                value={cmd}
+                helperText={'linux ssh command'}
+              />
+            </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>

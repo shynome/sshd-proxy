@@ -49,21 +49,20 @@ export const Index = () => {
         setItemsLoading(false)
       })
   }, [setItems, setItemsLoading])
+
   const [openAdd, setOpenAdd] = useState(false)
-  const [openAddFields, setOpenAddFields] = useState<Partial<AddProxyFormData>>({
-    localPort: '0',
-    remoteAddr: '127.0.0.1',
-  })
-  const openAddProxy = useMemo(() => () => {
+  const [nextLocalPort, setNextLocalPort] = useState(0)
+  useEffect(() => {
     let usedPorts = items.map(item => {
       let port = Number(item.name.split(':')[0])
       return isNaN(port) ? 0 : port
     })
     usedPorts = usedPorts.sort()
-    setOpenAddFields({
-      localPort: usedPorts[0].toString()
-    })
-  }, [setOpenAddFields])
+    let localPort = usedPorts[0] || 0
+    localPort = Math.max(4040, localPort + 1)
+    setNextLocalPort(localPort)
+  }, [items])
+
   const [openDelete, setOpenDelete] = useState('')
 
   const handleSubmit = async (rule: string) => {
@@ -88,7 +87,7 @@ export const Index = () => {
           options={items}
           getOptionLabel={(item: ProcessDescription) => item.name}
           freeSolo
-          onChange={(e, v) => console.log(v)}
+          onInputChange={(e, v) => console.log(v)}
           renderInput={params => (
             <TextField {...params} label="filter" variant="outlined" required fullWidth />
           )}
@@ -119,7 +118,7 @@ export const Index = () => {
           </Grid>
         </Grid>
       </Main>
-      <AddProxyDialog open={openAdd} defaultFields={openAddFields} onSubmit={handleSubmit} onClose={() => setOpenAdd(false)} />
+      <AddProxyDialog open={openAdd} nextLocalPort={nextLocalPort} onSubmit={handleSubmit} onClose={() => setOpenAdd(false)} />
       <DelProxyDialog open={openDelete !== ''} rule={openDelete} onSubmit={handleDelete} onClose={() => setOpenDelete('')}></DelProxyDialog>
     </Fragment>
   )

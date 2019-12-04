@@ -18,7 +18,7 @@ const createColumn = (displayName: string, opath: (item: ProcessDescription) => 
 })
 
 const columns = [
-  createColumn('id', item => item.pm_id),
+  // createColumn('id', item => item.pm_id),
   createColumn('name', item => item.name),
   createColumn('uptime', item => timeSince(item.pm2_env.pm_uptime)),
   createColumn('restart', item => item.pm2_env.restart_time),

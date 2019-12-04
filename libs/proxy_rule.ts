@@ -1,13 +1,15 @@
 
 import pm2 from 'pm2'
+import { getEnv } from "~libs/utils";
 
 export const parse = (rule: string): pm2.StartOptions => {
   let xrule = rule.split(':')
   let [published_port, ssh_host, target_host, target_port] = xrule
+  const ssh_exec_path = getEnv('SSH_EXEC_PATH') || 'ssh'
   if (xrule.length === 2) {
     return {
       name: rule,
-      script: process.env.SSH_EXEC_PATH || 'ssh',
+      script: ssh_exec_path,
       args: `-NT -D 0.0.0.0:${published_port} ${ssh_host}`.split(' '),
     }
   }
@@ -20,9 +22,14 @@ export const parse = (rule: string): pm2.StartOptions => {
   }
   return {
     name: rule,
-    script: process.env.SSH_EXEC_PATH || 'ssh',
+    script: ssh_exec_path,
     args: `-NT -L 0.0.0.0:${published_port}:${target_host}:${target_port} ${ssh_host}`.split(' '),
   }
+}
+
+if(process.browser){
+  // @ts-ignore
+  window.parse = parse
 }
 
 export const formatStr = (str: string) => {
