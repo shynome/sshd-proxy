@@ -33,6 +33,8 @@ RUN cd /tmp/package \
   && rm -rf node_modules .next/cache 
 
 FROM BASE
+# 运行依赖
+RUN apk add --no-cache openssh 
 ENV NODE_ENV=production
 COPY --from=BUILD /tmp/package /app
 COPY --from=PROD-modules /app/node_modules /app/node_modules
