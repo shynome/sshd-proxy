@@ -1,8 +1,8 @@
-const fs = require('fs')
+const fse = require('fs-extra')
 const path = require('path')
 const apps_filepath = path.join(process.cwd(), "data/app.json")
 
-if (fs.existsSync(apps_filepath)) {
+if (fse.existsSync(apps_filepath)) {
   process.exit(0)
 }
 
@@ -16,4 +16,5 @@ let apps = [
   }
 ]
 
-fs.writeFileSync(apps_filepath, JSON.stringify({ apps }, null, 2))
+fse.mkdirpSync(path.dirname(apps_filepath))
+fse.writeFileSync(apps_filepath, JSON.stringify({ apps }, null, 2))
