@@ -1,24 +1,30 @@
 import { Suspense, useState, Fragment, useMemo, useEffect, useLayoutEffect } from "react";
-import { ProcList } from "./list.page";
 import {
   useTheme,
   Grid, Paper,
   Button,
   TextField,
+  IconButton,
 } from "@material-ui/core";
 import IconAdd from "@material-ui/icons/Add";
+import IconRelod from '@material-ui/icons/Replay'
 import { useStyles } from "./index.styles";
 import { PM2ClientContaienr } from "./pm2.client";
 import { ProcessDescription, ListParams } from "~libs/thrift/codegen";
 import { Autocomplete } from "@material-ui/lab";
 
-import { AddProxyDialog, FormData as AddProxyFormData } from "./add.page";
+import { AddProxyDialog } from "./add.page";
 import { DelProxyDialog } from "./del.part";
+import { ProcList, displayProc } from "./list.page";
 
 export interface State {
   items: ProcessDescription[]
   openAdd: boolean
   openDelete: string
+}
+
+const optionsFilter = (keyword: string) => (proc: ProcessDescription) => {
+  return proc.name.indexOf(keyword) !== -1
 }
 
 const Main: React.StatelessComponent = (props) => {
@@ -50,6 +56,9 @@ export const Index = () => {
       })
   }, [setItems, setItemsLoading])
 
+  const [keyword, setKeyword] = useState('')
+  console.log(keyword)
+  let diplayItems = items.filter(optionsFilter(keyword))
   const [openAdd, setOpenAdd] = useState(false)
   const [nextLocalPort, setNextLocalPort] = useState(0)
   useEffect(() => {
@@ -57,7 +66,7 @@ export const Index = () => {
       let port = Number(item.name.split(':')[0])
       return isNaN(port) ? 0 : port
     })
-    usedPorts = usedPorts.sort()
+    usedPorts = usedPorts.sort((a, b) => a > b ? -1 : 1)
     let localPort = usedPorts[0] || 0
     localPort = Math.max(4040, localPort + 1)
     setNextLocalPort(localPort)
@@ -87,13 +96,15 @@ export const Index = () => {
           options={items}
           getOptionLabel={(item: ProcessDescription) => item.name}
           freeSolo
-          onInputChange={(e, v) => console.log(v)}
+          filterOptions={(options, input) => options.filter(optionsFilter(input.inputValue))}
+          onInputChange={(e, v) => setKeyword(v)}
           renderInput={params => (
             <TextField {...params} label="filter" variant="outlined" required fullWidth />
           )}
         />
       </Grid>
       <Grid item>
+        <IconButton onClick={updateItems}><IconRelod /></IconButton>
         <Button
           color='primary' variant='contained' size='large'
           startIcon={<IconAdd></IconAdd>}
@@ -104,7 +115,7 @@ export const Index = () => {
       </Grid>
     </Grid>
   )
-  const body = <ProcList loading={itemsLoading} data={items} handleDelete={name => setOpenDelete(name)} />
+  const body = <ProcList loading={itemsLoading} data={diplayItems} handleDelete={name => setOpenDelete(name)} />
 
   return (
     <Fragment>

@@ -12,30 +12,53 @@ import { ListParams, ProcessDescription } from "~libs/thrift/codegen";
 import { timeSince } from "~libs/utils";
 import { useStyles } from "./list.styles";
 
-const createColumn = (displayName: string, opath: (item: ProcessDescription) => any) => ({
+export type displayProc = ProcessDescription & {
+  metadata: {
+    localPort: string,
+    host: string,
+    remoteAddr: string,
+  }
+}
+
+export const Proc2DisplayProc = (item: ProcessDescription) => {
+  let rule = item.name.split(':')
+  return ({
+    ...item,
+    metadata: { localPort: rule[0], host: rule[1], remoteAddr: rule.slice(2).join(':') }
+  } as displayProc)
+}
+
+const createColumn = (displayName: string, opath: (item: displayProc) => any, align: 'left' | 'center' = 'center') => ({
   displayName,
-  opath
+  opath,
+  align,
 })
 
 const columns = [
   // createColumn('id', item => item.pm_id),
-  createColumn('name', item => item.name),
+  // createColumn('name', item => item.name),
+  createColumn('host', item => item.metadata.host, 'left'),
+  createColumn('port', item => item.metadata.localPort, 'left'),
+  createColumn('remote addr', item => (item.metadata.remoteAddr || 'socks5 proxy'), 'left'),
   createColumn('uptime', item => timeSince(item.pm2_env.pm_uptime)),
   createColumn('restart', item => item.pm2_env.restart_time),
   createColumn('status', item => item.pm2_env.status),
 ]
-export const ProcList: React.StatelessComponent<{
+
+export interface Props {
   data: ProcessDescription[],
   handleDelete: (name: string) => any,
   loading?: boolean
-}> = ({ data: items, handleDelete, loading = false }) => {
+}
+
+export const ProcList: React.StatelessComponent<Props> = ({ data: items, handleDelete, loading = false }) => {
   const styles = useStyles(useTheme())
   return (
     <Table stickyHeader size='small' className={styles.table}>
       <TableHead className={styles.thead}>
         <TableRow>
-          {columns.map((col) => (
-            <TableCell className={styles['thead-cell']} key={col.displayName}>{col.displayName}</TableCell>
+          {columns.map((col, index) => (
+            <TableCell className={styles['thead-cell']} align={col.align} key={col.displayName}>{col.displayName}</TableCell>
           ))}
           <TableCell className={styles['thead-cell']}>actions</TableCell>
         </TableRow>
@@ -50,18 +73,19 @@ export const ProcList: React.StatelessComponent<{
             </TableRow>
           )
         }
-        {items.map((item) => (
-          <TableRow key={item.name}>
-            {columns.map((col) => (
-              <TableCell className={styles['tbody-cell']} key={col.displayName}>{col.opath(item)}</TableCell>
-            ))}
-            <TableCell className={styles['tbody-cell']}>
-              <IconButton onClick={() => handleDelete(item.name)}>
-                <IconDelete />
-              </IconButton>
-            </TableCell>
-          </TableRow>
-        ))}
+        {items.map(Proc2DisplayProc)
+          .map((item) => (
+            <TableRow key={item.name}>
+              {columns.map((col, index) => (
+                <TableCell className={styles['tbody-cell']} align={col.align} key={col.displayName}>{col.opath(item)}</TableCell>
+              ))}
+              <TableCell className={styles['tbody-cell']}>
+                <IconButton onClick={() => handleDelete(item.name)}>
+                  <IconDelete />
+                </IconButton>
+              </TableCell>
+            </TableRow>
+          ))}
       </TableBody>
     </Table>
   )

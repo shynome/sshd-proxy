@@ -135,7 +135,6 @@ export const AddProxyDialog: React.StatelessComponent<Props> = ({
     }
     try {
       let p = parse(rule)
-      console.log(p.name)
       let cmd = `${p.script} ${(p.args as string[]).join(' ')}`
       setCmd(cmd)
     } catch (e) {

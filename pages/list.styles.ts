@@ -14,10 +14,8 @@ export const useStyles = makeStyles(theme => ({
     textAlign: 'center',
   },
   'thead-cell': {
-    textAlign: 'center',
   },
   'tbody-cell': {
-    textAlign: 'center',
   },
 }))
 
