@@ -1,17 +1,18 @@
-import { Suspense, useState, Fragment, useMemo, useEffect } from "react";
+import { Suspense, useState, Fragment, useMemo, useEffect, useLayoutEffect } from "react";
 import { ProcList } from "./list.page";
 import {
   useTheme,
   Grid, Paper,
-  LinearProgress,
   Button,
+  TextField,
 } from "@material-ui/core";
 import IconAdd from "@material-ui/icons/Add";
 import { useStyles } from "./index.styles";
 import { PM2ClientContaienr } from "./pm2.client";
 import { ProcessDescription, ListParams } from "~libs/thrift/codegen";
+import { Autocomplete } from "@material-ui/lab";
 
-import { AddProxyDialog } from "./add.page";
+import { AddProxyDialog, FormData as AddProxyFormData } from "./add.page";
 import { DelProxyDialog } from "./del.part";
 
 export interface State {
@@ -36,35 +37,44 @@ const Main: React.StatelessComponent = (props) => {
 export const Index = () => {
   const styles = useStyles(useTheme())
   const client = PM2ClientContaienr.useContainer()
-  const [state, setState] = useState<State>({
-    items: [],
-    openAdd: false,
-    openDelete: ''
+  const [items, setItems] = useState<ProcessDescription[]>([])
+  const [itemsLoading, setItemsLoading] = useState(false)
+  const updateItems = useMemo(() => () => {
+    setItemsLoading(true)
+    client.List(new ListParams())
+      .then(items => {
+        setItems(items)
+      })
+      .finally(() => {
+        setItemsLoading(false)
+      })
+  }, [setItems, setItemsLoading])
+  const [openAdd, setOpenAdd] = useState(false)
+  const [openAddFields, setOpenAddFields] = useState<Partial<AddProxyFormData>>({
+    localPort: '0',
+    remoteAddr: '127.0.0.1',
   })
-  const {
-    updateItems,
-    setOpenAdd,
-    handleSubmit,
-    handleDelete,
-    setOpenDelete,
-  } = {
-    updateItems: () => {
-      return client.List(new ListParams()).then(
-        items => setState({ ...state, items, })
-      )
-    },
-    setOpenAdd: (open: boolean) => setState({ ...state, openAdd: open, }),
-    handleSubmit: async (rule: string) => {
-      await client.AddProxy(rule)
-      updateItems()
-      setOpenAdd(false)
-    },
-    setOpenDelete: (name: string) => setState({ ...state, openDelete: name, }),
-    handleDelete: async (rule: string) => {
-      await client.DelProxy(rule)
-      updateItems()
-      setOpenDelete('')
-    }
+  const openAddProxy = useMemo(() => () => {
+    let usedPorts = items.map(item => {
+      let port = Number(item.name.split(':')[0])
+      return isNaN(port) ? 0 : port
+    })
+    usedPorts = usedPorts.sort()
+    setOpenAddFields({
+      localPort: usedPorts[0].toString()
+    })
+  }, [setOpenAddFields])
+  const [openDelete, setOpenDelete] = useState('')
+
+  const handleSubmit = async (rule: string) => {
+    await client.AddProxy(rule)
+    updateItems()
+    setOpenAdd(false)
+  }
+  const handleDelete = async (rule: string) => {
+    await client.DelProxy(rule)
+    updateItems()
+    setOpenDelete('')
   }
 
   useEffect(() => {
@@ -73,8 +83,16 @@ export const Index = () => {
 
   const header = (
     <Grid container spacing={2} justify='space-between'>
-      <Grid item>
-        nothing
+      <Grid item xs={4}>
+        <Autocomplete
+          options={items}
+          getOptionLabel={(item: ProcessDescription) => item.name}
+          freeSolo
+          onChange={(e, v) => console.log(v)}
+          renderInput={params => (
+            <TextField {...params} label="filter" variant="outlined" required fullWidth />
+          )}
+        />
       </Grid>
       <Grid item>
         <Button
@@ -86,9 +104,8 @@ export const Index = () => {
         </Button>
       </Grid>
     </Grid>
-
   )
-  const body = <ProcList data={state.items} handleDelete={name => setOpenDelete(name)} />
+  const body = <ProcList loading={itemsLoading} data={items} handleDelete={name => setOpenDelete(name)} />
 
   return (
     <Fragment>
@@ -102,8 +119,8 @@ export const Index = () => {
           </Grid>
         </Grid>
       </Main>
-      <AddProxyDialog open={state.openAdd} onSubmit={handleSubmit} onClose={() => setOpenAdd(false)} />
-      <DelProxyDialog open={state.openDelete !== ''} rule={state.openDelete} onSubmit={handleDelete} onClose={() => setOpenDelete('')}></DelProxyDialog>
+      <AddProxyDialog open={openAdd} defaultFields={openAddFields} onSubmit={handleSubmit} onClose={() => setOpenAdd(false)} />
+      <DelProxyDialog open={openDelete !== ''} rule={openDelete} onSubmit={handleDelete} onClose={() => setOpenDelete('')}></DelProxyDialog>
     </Fragment>
   )
 }

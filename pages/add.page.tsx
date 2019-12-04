@@ -65,20 +65,22 @@ export interface Props {
   open?: boolean
   onSubmit: (rule: string, fields: FormData) => any
   onClose?: () => any
+  defaultFields?: Partial<FormData>
 }
 
 export const AddProxyDialog: React.StatelessComponent<Props> = ({
   open = true,
   onSubmit,
   onClose = () => 0,
+  defaultFields = {}
 }) => {
   const styles = useStyles(useTheme())
   const [sshType, setSSHType] = useState(SSHType.LocalPortForwarding)
   const [pending, setPending] = useState(false)
   const { enqueueSnackbar } = useSnackbar()
   const [fields, saveField] = useFormFields({
-    localPort: '',
-    remoteAddr: '',
+    localPort: defaultFields.localPort || '',
+    remoteAddr: defaultFields.remoteAddr || '127.0.0.1',
     remotePort: '',
     host: '',
   })
@@ -90,12 +92,23 @@ export const AddProxyDialog: React.StatelessComponent<Props> = ({
           return
         }
         setPending(true)
-        let rule = [
-          fields.localPort,
-          fields.remoteAddr,
-          fields.remotePort,
-          fields.host,
-        ].filter(v => v).join(':')
+        let rule: string
+        switch (sshType) {
+          case SSHType.LocalPortForwarding:
+            rule = [
+              fields.localPort,
+              fields.remoteAddr,
+              fields.remotePort,
+              fields.host,
+            ].filter(v => v).join(':');
+            break;
+          case SSHType.Proxy:
+            rule = [
+              fields.localPort,
+              fields.host,
+            ].join(':');
+            break;
+        }
         Promise
           .resolve(onSubmit(rule, fields))
           .then(() => {

@@ -26,8 +26,9 @@ const columns = [
 ]
 export const ProcList: React.StatelessComponent<{
   data: ProcessDescription[],
-  handleDelete: (name: string) => any
-}> = ({ data: items, handleDelete }) => {
+  handleDelete: (name: string) => any,
+  loading?: boolean
+}> = ({ data: items, handleDelete, loading = false }) => {
   const styles = useStyles(useTheme())
   return (
     <Table stickyHeader size='small' className={styles.table}>
@@ -40,10 +41,19 @@ export const ProcList: React.StatelessComponent<{
         </TableRow>
       </TableHead>
       <TableBody>
+        {
+          loading && (
+            <TableRow>
+              <TableCell colSpan={columns.length + 1} padding='none'>
+                <LinearProgress />
+              </TableCell>
+            </TableRow>
+          )
+        }
         {items.map((item) => (
           <TableRow key={item.name}>
             {columns.map((col) => (
-              <TableCell className={styles['tbody-cell']}>{col.opath(item)}</TableCell>
+              <TableCell className={styles['tbody-cell']} key={col.displayName}>{col.opath(item)}</TableCell>
             ))}
             <TableCell className={styles['tbody-cell']}>
               <IconButton onClick={() => handleDelete(item.name)}>
@@ -69,7 +79,7 @@ export const PM2List: React.StatelessComponent = () => {
   useEffect(() => {
     updateItems()
   }, [])
-  const handleDelete = async (name) => {
+  const handleDelete = async (name: string) => {
     await client.DelProxy(name)
     enqueueSnackbar('删除成功', { autoHideDuration: 2e3 })
     updateItems()

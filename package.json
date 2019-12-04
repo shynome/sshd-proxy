@@ -51,10 +51,8 @@
     "@types/jest": "^24.0.23",
     "@types/node": "^12.12.14",
     "@types/react": "^16.9.13",
-    "@types/react-cache": "^2.0.1",
     "@types/thrift": "^0.10.8",
     "jest": "^24.9.0",
-    "react-read": "^1.0.2",
     "typescript": "^3.7.2",
     "unstated-next": "^1.1.0"
   }
