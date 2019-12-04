@@ -21,10 +21,20 @@ export type displayProc = ProcessDescription & {
 }
 
 export const Proc2DisplayProc = (item: ProcessDescription) => {
-  let rule = item.name.split(':')
+  let xrule = item.name.split(':')
+  let [localPort, host, remoteHost, remotePort] = xrule
+  let remoteAddr = ''
+  if (xrule.length === 2) {
+    remoteAddr = 'socks5 proxy'
+  } else if (xrule.length === 3) {
+    remotePort = remoteHost
+    remoteAddr = `127.0.0.1:${remotePort}`
+  } else if (xrule.length === 4) {
+    remoteAddr = `${remoteHost}:${remotePort}`
+  }
   return ({
     ...item,
-    metadata: { localPort: rule[0], host: rule[1], remoteAddr: rule.slice(2).join(':') }
+    metadata: { localPort, host, remoteAddr, }
   } as displayProc)
 }
 
@@ -39,7 +49,7 @@ const columns = [
   // createColumn('name', item => item.name),
   createColumn('host', item => item.metadata.host, 'left'),
   createColumn('port', item => item.metadata.localPort, 'left'),
-  createColumn('remote addr', item => (item.metadata.remoteAddr || 'socks5 proxy'), 'left'),
+  createColumn('remote addr', item => item.metadata.remoteAddr, 'left'),
   createColumn('uptime', item => timeSince(item.pm2_env.pm_uptime)),
   createColumn('restart', item => item.pm2_env.restart_time),
   createColumn('status', item => item.pm2_env.status),
@@ -54,40 +64,42 @@ export interface Props {
 export const ProcList: React.StatelessComponent<Props> = ({ data: items, handleDelete, loading = false }) => {
   const styles = useStyles(useTheme())
   return (
-    <Table stickyHeader size='small' className={styles.table}>
-      <TableHead className={styles.thead}>
-        <TableRow>
-          {columns.map((col, index) => (
-            <TableCell className={styles['thead-cell']} align={col.align} key={col.displayName}>{col.displayName}</TableCell>
-          ))}
-          <TableCell className={styles['thead-cell']}>actions</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {
-          loading && (
-            <TableRow>
-              <TableCell colSpan={columns.length + 1} padding='none'>
-                <LinearProgress />
-              </TableCell>
-            </TableRow>
-          )
-        }
-        {items.map(Proc2DisplayProc)
-          .map((item) => (
-            <TableRow key={item.name}>
-              {columns.map((col, index) => (
-                <TableCell className={styles['tbody-cell']} align={col.align} key={col.displayName}>{col.opath(item)}</TableCell>
-              ))}
-              <TableCell className={styles['tbody-cell']}>
-                <IconButton onClick={() => handleDelete(item.name)}>
-                  <IconDelete />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-      </TableBody>
-    </Table>
+    <div className={styles.tableWrapper}>
+      <Table stickyHeader className={styles.table}>
+        <TableHead className={styles.thead}>
+          <TableRow>
+            {columns.map((col, index) => (
+              <TableCell className={styles['thead-cell']} align={col.align} key={col.displayName}>{col.displayName}</TableCell>
+            ))}
+            <TableCell className={styles['thead-cell']}>actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {
+            loading && (
+              <TableRow>
+                <TableCell colSpan={columns.length + 1} padding='none'>
+                  <LinearProgress />
+                </TableCell>
+              </TableRow>
+            )
+          }
+          {items.map(Proc2DisplayProc)
+            .map((item) => (
+              <TableRow hover key={item.name}>
+                {columns.map((col, index) => (
+                  <TableCell className={styles['tbody-cell']} align={col.align} key={col.displayName}>{col.opath(item)}</TableCell>
+                ))}
+                <TableCell className={styles['tbody-cell']}>
+                  <IconButton onClick={() => handleDelete(item.name)}>
+                    <IconDelete />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+        </TableBody>
+      </Table>
+    </div>
   )
 }
 

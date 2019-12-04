@@ -7,11 +7,14 @@ export const useStyles = makeStyles(theme => ({
     padding: 20,
     marginTop: 40,
   },
+  tableWrapper: {
+    maxHeight: '70vh',
+    overflow: 'auto',
+  },
   table: {
-    textAlign: 'center',
   },
   thead: {
-    textAlign: 'center',
+    textTransform: 'uppercase',
   },
   'thead-cell': {
   },

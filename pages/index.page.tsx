@@ -31,7 +31,7 @@ const Main: React.StatelessComponent = (props) => {
   const styles = useStyles(useTheme())
   return (
     <Grid container justify='center'>
-      <Grid item xs={8}>
+      <Grid item xs={10}>
         <Paper className={styles.main}>
           {props.children}
         </Paper>
@@ -90,7 +90,7 @@ export const Index = () => {
 
   const header = (
     <Grid container spacing={2} justify='space-between'>
-      <Grid item xs={4}>
+      <Grid item xs={8}>
         <Autocomplete
           options={items}
           getOptionLabel={(item: ProcessDescription) => item.name}

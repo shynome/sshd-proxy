@@ -4,7 +4,7 @@ import {
 
 export const useStyles = makeStyles(theme => ({
   main: {
-    padding: 20,
+    padding: '20px 20px 50px 20px',
     marginTop: 40,
   },
   table: {
@@ -20,4 +20,3 @@ export const useStyles = makeStyles(theme => ({
     textAlign: 'center',
   },
 }))
-
