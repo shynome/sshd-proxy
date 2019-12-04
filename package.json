@@ -9,6 +9,7 @@
     "gen:thrift": "cd libs/thrift && thrift-typescript --target apache --sourceDir . --rootDir . $(find *.thrift)",
     "prebuild": "rm -rf .next",
     "build": "next build",
+    "postversion": "git push --follow-tags",
     "postbuild": "rm -rf .next/cache"
   },
   "repository": {
