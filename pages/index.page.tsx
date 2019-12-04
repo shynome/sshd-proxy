@@ -57,7 +57,6 @@ export const Index = () => {
   }, [setItems, setItemsLoading])
 
   const [keyword, setKeyword] = useState('')
-  console.log(keyword)
   let diplayItems = items.filter(optionsFilter(keyword))
   const [openAdd, setOpenAdd] = useState(false)
   const [nextLocalPort, setNextLocalPort] = useState(0)
@@ -98,6 +97,7 @@ export const Index = () => {
           freeSolo
           filterOptions={(options, input) => options.filter(optionsFilter(input.inputValue))}
           onInputChange={(e, v) => setKeyword(v)}
+          disableClearable
           renderInput={params => (
             <TextField {...params} label="filter" variant="outlined" required fullWidth />
           )}

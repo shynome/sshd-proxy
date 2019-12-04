@@ -39,6 +39,7 @@ export const Hosts: React.StatelessComponent<{ onChange: (value: { target: { val
       freeSolo
       loading={hosts.length === 0}
       onInputChange={(e, value) => props.onChange({ target: { value } })}
+      disableClearable
       renderInput={params => (
         <TextField
           {...params}
