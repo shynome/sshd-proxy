@@ -33,8 +33,6 @@ docker run --rm -ti -p 127.0.0.1:3000:3000 -v ~/.ssh:/root/.ssh shynome/sshd-pro
 
 ### 运行
 
-破
-
 ```sh
 git clone git@github.com:shynome/sshd-proxy.git
 cd sshd-proxy
