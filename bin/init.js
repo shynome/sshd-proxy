@@ -12,7 +12,9 @@ let apps = [
     name: "sshd-proxy",
     cwd: ".",
     script: "./node_modules/.bin/next",
-    args: ["start"].concat(process.env.PORT ? ["--port", process.env.PORT] : [])
+    args: ["start"]
+      .concat(process.env.PORT ? ["--port", process.env.PORT] : [])
+      .concat(process.env.NEXT_HOSTNAME ? ["--hostname", process.env.NEXT_HOSTNAME] : [])
   }
 ]
 
