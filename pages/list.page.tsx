@@ -73,8 +73,6 @@ export const ProcList: React.StatelessComponent<Props> = ({ data: items, handleD
             ))}
             <TableCell className={styles['thead-cell']}>actions</TableCell>
           </TableRow>
-        </TableHead>
-        <TableBody>
           {
             loading && (
               <TableRow>
@@ -84,6 +82,8 @@ export const ProcList: React.StatelessComponent<Props> = ({ data: items, handleD
               </TableRow>
             )
           }
+        </TableHead>
+        <TableBody>
           {items.map(Proc2DisplayProc)
             .map((item) => (
               <TableRow hover key={item.name}>
