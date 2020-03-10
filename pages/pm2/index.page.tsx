@@ -17,6 +17,7 @@ import { useQuery, gql } from '@apollo/client'
 import { ProcessDescription } from '~modules/graphql/codegen'
 import { DelProxyBtn } from './DelProxyBtn'
 import { TimeSince } from './TimeSince'
+import { MoreActionsBtn } from './MoreActionsBtn'
 
 const getPM2ListQuery = gql`
   query pm2_list {
@@ -136,7 +137,7 @@ const cols = [
     sort: false,
     searchable: false,
     customBodyRender: name => {
-      return <DelProxyBtn name={name} />
+      return <MoreActionsBtn rule={name} />
     },
   }),
 ]

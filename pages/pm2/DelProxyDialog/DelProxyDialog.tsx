@@ -34,7 +34,12 @@ export const DelProxyDialog: StatelessComponent<{
           <Button size="large" disabled={state.pending} onClick={close}>
             取消
           </Button>
-          <Button size="large" disabled={state.pending} type="submit">
+          <Button
+            size="large"
+            disabled={state.pending}
+            color="primary"
+            type="submit"
+          >
             确认
           </Button>
         </DialogActions>
