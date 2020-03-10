@@ -118,9 +118,12 @@ const cols = [
     sort: false,
     filter: false,
   }),
-  Col('uptme', p => timeSince(p.pm2_env.pm_uptime), {
+  Col('uptme', p => p.pm2_env.pm_uptime, {
     filter: false,
     searchable: false,
+    customBodyRender: time => {
+      return timeSince(time)
+    },
   }),
   Col('restart', p => p.pm2_env.restart_time, {
     filter: false,
