@@ -8,6 +8,7 @@ import {
   IconButton,
   LinearProgress,
   Tooltip,
+  Container,
 } from '@material-ui/core'
 import AddIcon from '@material-ui/icons/Add'
 import ReloadIcon from '@material-ui/icons/Replay'
@@ -15,7 +16,7 @@ import MUIDatatables, { MUIDataTableColumnOptions } from 'mui-datatables'
 import { useQuery, gql } from '@apollo/client'
 import { ProcessDescription } from '~modules/graphql/codegen'
 import { DelProxyBtn } from './DelProxyBtn'
-import { timeSince } from '~modules/utils/common'
+import { TimeSince } from './TimeSince'
 
 const getPM2ListQuery = gql`
   query pm2_list {
@@ -122,7 +123,7 @@ const cols = [
     filter: false,
     searchable: false,
     customBodyRender: time => {
-      return timeSince(time)
+      return <TimeSince t={time} />
     },
   }),
   Col('restart', p => p.pm2_env.restart_time, {
@@ -144,12 +145,15 @@ export const PM2Page = () => {
   const { data: { pm2_list = [] } = {}, loading, refetch } = useQuery<{
     pm2_list: ProcessDescription[]
   }>(getPM2ListQuery)
+  const theme = useTheme()
 
   const displayProcs = pm2_list.map(Proc2DisplayProc)
   const displayData = displayProcs.map(u => cols.map(c => c.opath(u)))
 
   return (
-    <Fragment>
+    <Container
+      style={{ paddingTop: theme.spacing(3), paddingBottom: theme.spacing(3) }}
+    >
       <AddProxyDialog onFinish={() => refetch()} />
       <DelProxyDialog onFinish={() => refetch()} />
       <Main>
@@ -168,7 +172,7 @@ export const PM2Page = () => {
           }}
         />
       </Main>
-    </Fragment>
+    </Container>
   )
 }
 
