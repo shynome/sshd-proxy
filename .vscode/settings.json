@@ -1,4 +1,7 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
-  "files.autoSave": "off"
+  "files.autoSave": "off",
+  "files.exclude": {
+    ".next": true,
+  }
 }

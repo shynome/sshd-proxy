@@ -12,9 +12,13 @@ for (let name in alias) {
 const TEST_REGEX = '(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|js?|tsx?|ts?)$'
 
 module.exports = {
+  setupFiles: ['<rootDir>/next.preset.js'],
   testRegex: TEST_REGEX,
-  testEnvironment: "node",
+  testEnvironment: 'node',
   testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
   collectCoverage: false,
   moduleNameMapper,
+  transform: {
+    '\\.graphql$': 'jest-transform-graphql',
+  },
 }

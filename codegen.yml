@@ -1,0 +1,12 @@
+overwrite: true
+schema: "modules/graphql/*.graphql"
+generates:
+  modules/graphql/codegen/index.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-resolvers"
+  # 重要, apollo graphql 就是使用这个文件进行代码提示的
+  modules/graphql/codegen/schema.json:
+    plugins:
+      - "introspection"

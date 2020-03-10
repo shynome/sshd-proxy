@@ -1,0 +1,87 @@
+type Monit {
+  "The number of bytes the process is using."
+  memory: Int!
+  "The percent of CPU being used by the process at the moment."
+  cpu: Int!
+}
+
+"The list of path variables in the process’s environment"
+type Pm2Env {
+  "The working directory of the process."
+  pm_cwd: String
+  "The stdout log file path."
+  pm_out_log_path: String
+  "The stderr log file path."
+  pm_err_log_path: String
+  "The interpreter used."
+  exec_interpreter: String
+  "The uptime of the process."
+  pm_uptime: Float
+  "The number of unstable restarts the process has been through."
+  unstable_restarts: Int
+  restart_time: Int
+  "'online' | 'stopping' | 'stopped' | 'launching' | 'errored' | 'one-launch-status'"
+  status: String
+  "The number of running instances."
+  instances: Int
+  "The path of the script being run in this process."
+  pm_exec_path: String
+}
+
+type ProcessDescription {
+  "The name given in the original start command."
+  name: String!
+  "The pid of the process."
+  pid: Int!
+  "The pid for the pm2 God daemon process."
+  pm_id: Int!
+  monit: Monit!
+  pm2_env: Pm2Env
+}
+
+type Command {
+  locked: Boolean!
+  metadata: String!
+  started_at: String!
+  finished_at: String!
+  error: String!
+}
+
+type Proc {
+  name: String
+  vizion: Boolean
+  autorestart: Boolean
+  exec_mode: String
+  exec_interpreter: String
+  pm_exec_path: String
+  pm_cwd: String
+  instances: Int
+  node_args: [String]
+  pm_out_log_path: String
+  pm_err_log_path: String
+  pm_pid_path: String
+  status: String
+  pm_uptime: Float
+  vizion_running: Boolean
+  created_at: Float
+  pm_id: Int
+  restart_time: Int
+  unstable_restarts: Int
+  started_inside: Boolean
+  command: Command
+  exit_code: Int
+}
+
+input PM2ListParams {
+  pm_id: Int
+}
+
+type Query {
+  SSHHosts: [String]!
+  PM2List(input: PM2ListParams = {}): [ProcessDescription]!
+}
+
+type Mutation {
+  PM2AddProxy(rule: String!): Proc!
+  PM2DelProxy(rule: String!): Proc!
+}
